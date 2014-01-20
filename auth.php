@@ -19,6 +19,7 @@
  * @link     https://github.com/cannod/moodle-drupalservices
  *
  */
+
 // This must be accessed from a Moodle page only!
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');
@@ -26,6 +27,7 @@ if (!defined('MOODLE_INTERNAL')) {
 require_once $CFG->libdir . '/authlib.php';
 require_once $CFG->dirroot . '/cohort/lib.php';
 require_once $CFG->dirroot . '/auth/drupalservices/REST-API.php';
+require_once $CFG->dirroot.'/user/lib.php';
 
 /**
  * class auth_plugin_drupalservices
@@ -83,16 +85,14 @@ class auth_plugin_drupalservices extends auth_plugin_base
                 // the URL is set and within Moodle's environment
                 $urltogo = $SESSION->wantsurl;
                 unset($SESSION->wantsurl);
-                //parse_url($urltogo)
-                // Apache did not like // sp remove leading slash
-                //$path = ltrim($urltogo, $CFG->wwwroot);
-                //$path = ltrim($path,'/' );
+
                 $path = ltrim(parse_url($urltogo, PHP_URL_PATH), '/');
                 $args = parse_url($urltogo, PHP_URL_QUERY);
                 if ($args) {
                     $args = '?' . $args;
                 }
-                // FIX so not hard coded.
+
+                // @todo FIX so not hard coded.
                 redirect($base_url . '/user/login?destination=' . $path . $args);
             }
             return; // just send user to login page
@@ -108,6 +108,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         $apiObj = new RemoteAPI($base_url, $endpoint, 1, $session_name, $session_id);
         // Connect to Drupal with this session
         $ret = $apiObj->Connect();
+
         if (is_null($ret)) {
             //should we just return?
             if (isloggedin() && !isguestuser()) {
@@ -117,23 +118,27 @@ class auth_plugin_drupalservices extends auth_plugin_base
             }
             return;
         }
-        $uid = $ret->user->uid;
-        if ($uid < 1) { //No anon
+
+        if (!$uid = $ret->user->uid) { // No anon
             return;
         }
+
         // The Drupal session is valid; now check if Moodle is logged in...
         if (isloggedin() && !isguestuser()) {
             return;
         }
+
         // See if we have a moodle user with this idnumber
         $user = get_complete_user_data('idnumber', $uid);
 
-        if (empty($user)) {
             // User not in Moodle database yet.
+        if (empty($user)) {
             return;
         }
+
         // Complete the login
         complete_user_login($user);
+
         // redirect
         if (isset($SESSION->wantsurl) and (strpos($SESSION->wantsurl, $CFG->wwwroot) == 0)) {
             // the URL is set and within Moodle's environment
@@ -170,6 +175,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         $lastname = $drupal_user->lastname;
         $city = $drupal_user->city;
         $country = $drupal_user->country;
+
         // MIGHT DO THIS? $user = create_user_record($username, "", "joomdle");
         // and do better checks for updated fields.
         // Maybe $DB->update_record('user', $updateuser);
@@ -184,17 +190,26 @@ class auth_plugin_drupalservices extends auth_plugin_base
             $user->lastname = $lastname;
             $user->auth = $this->authtype;
             $user->mnethostid = $CFG->mnet_localhost_id;
-            //$user->lang       = str_replace('-', '_', $drupal_user->language);
             $user->lang = $CFG->lang;
             $user->confirmed = 1;
             $user->email = $email;
             $user->idnumber = $uid;
-            $user->city = $city;
-            $user->country = $country;
+            $user->city = $city ? $city : '';
+            $user->country = $country ? $country : '';
             $user->modified = time();
+
+            try {
             // add the new Drupal user to Moodle
-            $uid = $DB->insert_record('user', $user);
-            $user = $DB->get_record('user', array('username' => $username, 'mnethostid' => $CFG->mnet_localhost_id));
+              $uid = user_create_user($user, false);
+            }
+            catch (Exception $e) {
+              print_r(array(
+                $user,
+                $e->getMessage(),
+                $DB->get_last_error(),
+              ));
+              exit;
+            }
             if (!$user) {
                 print_error('auth_drupalservicescantinsert', 'auth_db', $username);
             }
@@ -206,8 +221,8 @@ class auth_plugin_drupalservices extends auth_plugin_base
             $user->firstname = $firstname;
             $user->lastname = $lastname;
             $user->email = $email;
-            $user->city = $city;
-            $user->country = $country;
+            $user->city = $city ? $city : '';
+            $user->country = $country ? $country : '';
             $user->auth = $this->authtype;
             if (!$DB->update_record('user', $user)) {
                 print_error('auth_drupalservicescantupdate', 'auth_db', $username);
@@ -266,6 +281,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         print_r($apiObj);
         // list external users
         $drupal_users = $apiObj->Index('muser');
+
         if (is_null($drupal_users) || empty($drupal_users)) {
             die("ERROR: Problems trying to get index of users!\n");
         }
@@ -307,17 +323,15 @@ class auth_plugin_drupalservices extends auth_plugin_base
                         $updateuser->auth = 'nologin';
                         $updateuser->timemodified = time();
                         $DB->update_record('user', $updateuser);
-                        //       if ($verbose) {
                         mtrace("\t" . get_string('auth_drupalservicessuspenduser', 'auth_drupalservices', array('name' => $user->username, 'id' => $user->id)));
-                        //      }
                     }
                 }
                 unset($remove_users); // free mem!
             }
         }
+
+        // exit right here, nothing else to do
         if (!count($userlist)) {
-            // exit right here
-            // nothing else to do
             return 0;
         }
         // sync users in Drupal with users in Moodle (adding users if needed)
@@ -609,9 +623,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
             $return = array('session_name' => $session_name, 'session_id' => $session_id,);
             return $return;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
 }

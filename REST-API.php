@@ -163,7 +163,6 @@ class RemoteAPI {
   // Perform the common logic for performing an HTTP request with cURL
   // return an object with 'response', 'error' and 'info' fields.
   private function CurlHttpRequest( $caller, $url, $method, $data, $includeAuthCookie = false, $includeCSRFToken = false ) {
-
     $ch = curl_init();    // create curl resource
     switch ($method) {
       case 'POST':   curl_setopt_array($ch, $this->GetCurlPostOptions($url,$data, $includeAuthCookie, $includeCSRFToken)); break;
@@ -195,9 +194,11 @@ class RemoteAPI {
   public function Connect() {
 
     $callerId = 'RemoteAPI->Connect';
+
     if (!$this->VerifyLoggedIn( $callerId )) {
       return NULL; // error
     }
+
 
     // First lets get CSRF Token from services.
     $this->CSRFToken = $this->GetCSRFToken();
@@ -205,6 +206,7 @@ class RemoteAPI {
     $url = $this->gateway.$this->endpoint.'/system/connect';
 
     $ret = $this->CurlHttpRequest($callerId, $url, 'POST', "", true, true);
+
     if ($ret->info['http_code'] != 200) {
       return NULL;
     }
@@ -217,7 +219,6 @@ class RemoteAPI {
   // *****************************************************************************
   // Login: uses the cURL library to handle login
   public function Login( $username, $password ) {
-
     $callerId = 'RemoteAPI->Login';
     if (!$this->VerifyUnconnected( $callerId )) {
       return NULL; // error
