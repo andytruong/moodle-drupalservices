@@ -131,12 +131,12 @@ class auth_plugin_drupalservices extends auth_plugin_base
         // See if we have a moodle user with this idnumber
         $user = get_complete_user_data('idnumber', $uid);
 
-            // User not in Moodle database yet.
+        // User not in Moodle database yet.
         if (empty($user)) {
             return;
         }
 
-        // Complete the login
+        // Complete the login;
         complete_user_login($user);
 
         // redirect
@@ -165,12 +165,11 @@ class auth_plugin_drupalservices extends auth_plugin_base
     function create_update_user($drupal_user)
     {
         global $CFG, $DB;
+
         $uid = $drupal_user->uid;
         $username = $drupal_user->name;
         $email = $drupal_user->email;
-        //status should be 1.
         $status = $drupal_user->status;
-        //$timezone = $drupal_user->timezone;
         $firstname = $drupal_user->firstname;
         $lastname = $drupal_user->lastname;
         $city = $drupal_user->city;
@@ -199,7 +198,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
             $user->modified = time();
 
             try {
-            // add the new Drupal user to Moodle
+              // add the new Drupal user to Moodle
               $uid = user_create_user($user, false);
             }
             catch (Exception $e) {
@@ -210,6 +209,8 @@ class auth_plugin_drupalservices extends auth_plugin_base
               ));
               exit;
             }
+
+            $user = $DB->get_record('user', array('username' => $username, 'mnethostid' => $CFG->mnet_localhost_id));
             if (!$user) {
                 print_error('auth_drupalservicescantinsert', 'auth_db', $username);
             }
@@ -224,8 +225,20 @@ class auth_plugin_drupalservices extends auth_plugin_base
             $user->city = $city ? $city : '';
             $user->country = $country ? $country : '';
             $user->auth = $this->authtype;
-            if (!$DB->update_record('user', $user)) {
-                print_error('auth_drupalservicescantupdate', 'auth_db', $username);
+
+            try {
+                $i = user_update_user($user, false);
+                if (!$DB->update_record('user', $user)) {
+                    print_error('auth_drupalservicescantupdate', 'auth_db', $username);
+                }
+            }
+            catch (Exception $e) {
+              print_r(array(
+                $user,
+                $e->getMessage(),
+                $DB->get_last_error(),
+              ));
+              exit;
             }
         }
         return $user;
@@ -278,7 +291,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         if (is_null($ret)) {
             die("ERROR: Login error!\n");
         }
-        print_r($apiObj);
+
         // list external users
         $drupal_users = $apiObj->Index('muser');
 
