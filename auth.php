@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authentication Plugin: Drupal Services Single Sign-on
  *
@@ -37,6 +38,7 @@ require_once $CFG->dirroot . '/auth/drupalservices/REST-API.php';
  */
 class auth_plugin_drupalservices extends auth_plugin_base
 {
+
     /**
      * Constructor
      */
@@ -45,6 +47,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         $this->authtype = 'drupalservices';
         $this->config = get_config('auth/drupalservices');
     }
+
     /** 
      * This plugin is for SSO only; Drupal handles the login
      *
@@ -57,6 +60,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
     {
         return false;
     }
+
     /**
      * Function to enable SSO (it runs before user_login() is called)
      * If a valid Drupal session is not found, the user will be forced to the
@@ -71,6 +75,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         $base_url = $this->config->hostname;
         $endpoint = $this->config->endpoint;
         $drupalsession = $this->get_drupal_session($base_url);
+
         if (empty($drupalsession)) {
             // redirect to drupal login page with destination
             if (isset($SESSION->wantsurl) and (strpos($SESSION->wantsurl, $CFG->wwwroot) == 0)) {
@@ -90,8 +95,8 @@ class auth_plugin_drupalservices extends auth_plugin_base
                 redirect($base_url . '/user/login?destination=' . $path . $args);
             }
             return; // just send user to login page
-            
         }
+
         // Verify the authenticity of the Drupal session ID
         // Create JSON cookie used to connect to drupal services.
         // So we connect to system/connect and we should get a valid drupal user.
@@ -133,13 +138,15 @@ class auth_plugin_drupalservices extends auth_plugin_base
             // the URL is set and within Moodle's environment
             $urltogo = $SESSION->wantsurl;
             unset($SESSION->wantsurl);
-        } else {
+        }
+        else {
             // no wantsurl stored or external link. Go to homepage.
             $urltogo = $CFG->wwwroot . '/';
             unset($SESSION->wantsurl);
         }
         redirect($urltogo);
     }
+
     /**
      * function to grab Moodle user and update their fields then return the
      * account. If the account does not exist, create it.
@@ -190,7 +197,8 @@ class auth_plugin_drupalservices extends auth_plugin_base
             if (!$user) {
                 print_error('auth_drupalservicescantinsert', 'auth_db', $username);
             }
-        } else {
+        }
+        else {
             // Update user information
             //username "could" change in drupal. idnumber should never change.
             $user->username = $username;
@@ -206,6 +214,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         }
         return $user;
     }
+
     /**
      * Run before logout
      *
@@ -224,12 +233,14 @@ class auth_plugin_drupalservices extends auth_plugin_base
             $ret = $apiObj->Logout();
             if (is_null($ret)) {
                 return;
-            } else {
+            }
+            else {
                 return true;
             }
         }
         return;
     }
+
     /**
      * cron synchronization script
      *
@@ -269,7 +280,8 @@ class auth_plugin_drupalservices extends auth_plugin_base
                 $sql = "SELECT u.*
                           FROM {user} u
                          WHERE u.auth=:authtype AND u.deleted=0 AND u.idnumber $notin_sql";
-            } else {
+            }
+            else {
                 $sql = "SELECT u.*
                           FROM {user} u
                          WHERE u.auth=:authtype AND u.deleted=0";
@@ -287,8 +299,8 @@ class auth_plugin_drupalservices extends auth_plugin_base
                         //if ($verbose) {
                         mtrace("\t" . get_string('auth_drupalservicesdeleteuser', 'auth_drupalservices', array('name' => $user->username, 'id' => $user->id)));
                         //}
-                        
-                    } else if ($this->config->removeuser == AUTH_REMOVEUSER_SUSPEND) {
+                    }
+                    else if ($this->config->removeuser == AUTH_REMOVEUSER_SUSPEND) {
                         $updateuser = new stdClass();
                         $updateuser->id = $user->id;
                         $updateuser->auth = 'nologin';
@@ -297,11 +309,9 @@ class auth_plugin_drupalservices extends auth_plugin_base
                         //       if ($verbose) {
                         mtrace("\t" . get_string('auth_drupalservicessuspenduser', 'auth_drupalservices', array('name' => $user->username, 'id' => $user->id)));
                         //      }
-                        
                     }
                 }
                 unset($remove_users); // free mem!
-                
             }
         }
         if (!count($userlist)) {
@@ -338,12 +348,12 @@ class auth_plugin_drupalservices extends auth_plugin_base
             $drupal_cohorts = $apiObj->Index($cohort_view);
             if (is_null($drupal_cohorts)) {
                 print "ERROR: Error retreiving cohorts!\n";
-            } else {
+            }
+            else {
                 // OK First lets create any Moodle cohorts that are in drupal.
                 foreach ($drupal_cohorts as $drupal_cohort) {
                     if ($drupal_cohort->cohort_name == '') {
                         continue; // We don't want an empty cohort name
-                        
                     }
                     $drupal_cohort_list[] = $drupal_cohort->cohort_name;
                     if (!$this->cohort_exists($drupal_cohort->cohort_name)) {
@@ -407,10 +417,12 @@ class auth_plugin_drupalservices extends auth_plugin_base
         $ret = $apiObj->Logout();
         if (is_null($ret)) {
             print "ERROR logging out!\n";
-        } else {
+        }
+        else {
             print "Logged out from drupal services\n";
         }
     }
+
     /**
      * Function called by admin/auth.php to print a form for configuring plugin
      *
@@ -424,6 +436,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
     {
         include 'config.html';
     }
+
     /** 
      * Processes and stores configuration data for this authentication plugin.
      *
@@ -436,13 +449,15 @@ class auth_plugin_drupalservices extends auth_plugin_base
         // set to defaults if undefined
         if (!isset($config->hostname)) {
             $config->hostname = 'http://';
-        } else {
+        }
+        else {
             // remove trailing slash
             $config->hostname = rtrim($config->hostname, '/');
         }
         if (!isset($config->endpoint)) {
             $config->endpoint = '';
-        } else {
+        }
+        else {
             if ((substr($config->endpoint, 0, 1) != '/')) {
                 //no preceding slash! Add one!
                 $config->endpoint = '/' . $config->endpoint;
@@ -479,6 +494,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         set_config('field_lock_idnumber', $config->field_lock_idnumber, 'auth/drupalservices');
         return true;
     }
+
     /**
      * Check if cohort exists. return true if so.
      *
@@ -501,6 +517,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         // no match so return false
         return false;
     }
+
     /**
      * return list of cohorts
      *
@@ -518,6 +535,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         // }
         return $moodle_cohorts;
     }
+
     /**
      * Return an array of cohorts this uid is in.
      *
@@ -537,6 +555,7 @@ class auth_plugin_drupalservices extends auth_plugin_base
         }
         return $user_cohorts;
     }
+
     /**
      * Return an array of moodle cohorts this user is in.
      *
@@ -551,12 +570,14 @@ class auth_plugin_drupalservices extends auth_plugin_base
         $user_cohorts = $DB->get_records_sql($sql);
         return $user_cohorts;
     }
+
     /**
      * Get Drupal session 
      *
      * @param string $base_url This base URL
      *
      * @return array session_name and session_id 
+     * @see drupal_settings_initialize()
      */ 
     function get_drupal_session($base_url)
     {
@@ -565,16 +586,20 @@ class auth_plugin_drupalservices extends auth_plugin_base
         list($protocol, $session_name) = explode('://', $base_url, 2);
         if (strtolower($protocol) == 'https') {
             $prefix = 'SSESS';
-        } else {
+        }
+        else {
             $prefix = 'SESS';
         }
         $session_name = $prefix . substr(hash('sha256', $session_name), 0, 32);
+
         if (isset($_COOKIE[$session_name])) {
             $session_id = $_COOKIE[$session_name];
             $return = array('session_name' => $session_name, 'session_id' => $session_id,);
             return $return;
-        } else {
+        }
+        else {
             return null;
         }
     }
+
 }

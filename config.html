@@ -1,9 +1,12 @@
+<!--
 <?php
     global $OUTPUT;
+
     // set to defaults if undefined
     if (!isset($config->hostname)) {
         $config->hostname = 'http://';
     }
+
     if (!isset($config->endpoint)) {
         $config->endpoint = '/';
     }
@@ -27,8 +30,9 @@
     $config->field_lock_idnumber = 'locked';
 
     $yesno = array( get_string('no'), get_string('yes') );
-
 ?>
+// -->
+
 <table cellspacing="0" cellpadding="5" border="0">
 
 <tr valign="top" class="required">
