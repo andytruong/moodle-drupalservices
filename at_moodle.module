@@ -1,7 +1,5 @@
 <?php
 /**
  * @file
- * Code for the at_moodle feature.
+ * Drupal needs this blank file.
  */
-
-include_once 'at_moodle.features.inc';
