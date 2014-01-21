@@ -1,0 +1,3 @@
+services:
+    at_moodle.user:
+        class: '\Drupal\at_moodle\Services\User'

@@ -1,5 +1,14 @@
 <?php
 /**
- * @file
- * Drupal needs this blank file.
+ * @file at_module.module
  */
+
+class AT_Moodle {
+    /**
+     * @return Drupal\at_moodle\Services\User
+     */
+    public static function getServiceUser() {
+        return at_container('at_moodle.user');
+    }
+}
+
