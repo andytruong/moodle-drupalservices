@@ -69,10 +69,7 @@ class User {
      * @see hook_user_login()
      */
     public function createDrupalSession($duser) {
-        global $user;
-
-        $user = $duser;
-
-        return user_login_finalize($form_state = array('values' => array('name' => $user->name)));
+        $form_state['uid'] = $duser->uid;
+        user_login_submit(array(), $form_state);
     }
 }
