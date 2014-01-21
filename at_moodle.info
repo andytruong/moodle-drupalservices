@@ -3,6 +3,9 @@ core = 7.x
 package = Features
 version = 7.x-1.0-alpha2
 project = at_moodle
+
+dependencies[] = at_base
+
 ctools[] = services:services:3
 ctools[] = views:views_default:3.0
 features[features_api][] = api:2
