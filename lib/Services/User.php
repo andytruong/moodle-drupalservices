@@ -65,9 +65,14 @@ class User {
     /**
      * Create session for Drupal session.
      *
-     * @todo Make sure user_login hooks are invoked.
+     * @see user_login_submit()
+     * @see hook_user_login()
      */
     public function createDrupalSession($duser) {
-        throw new \RuntimeException('To be implemented.');
+        global $user;
+
+        $user = $duser;
+
+        return user_login_finalize($form_state = array('values' => array('name' => $user->name)));
     }
 }
