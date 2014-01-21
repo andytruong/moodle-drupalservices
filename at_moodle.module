@@ -1,6 +1,12 @@
 <?php
 /**
  * @file at_module.module
+ *
+ * @todo Detect Moodle session, auto create Drupal session, sync data if there's
+ *  any changes.
+ *
+ * @todo On user login, update user data (First name, last name, …).
+ * @todo Data change on Drupal, push changes to Moodle.
  */
 
 class AT_Moodle {
