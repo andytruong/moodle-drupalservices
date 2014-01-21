@@ -92,4 +92,24 @@ class User {
         $form_state['uid'] = $duser->uid;
         user_login_submit(array(), $form_state);
     }
+
+    /**
+     * Sync user's properties from Moodle to Drupal.
+     *
+     * @param stdClass $muser
+     * @param stdClass $duser
+     */
+    public function syncToDrupal($muser, $duser) {
+        throw new \RuntimeException('To be implemented.');
+    }
+
+    /**
+     * Sync user's properties from Drupal to Moodle.
+     *
+     * @param stdClass $duser
+     * @param stdClass $muser
+     */
+    public function syncToMoodle($duser, $muser) {
+        throw new \RuntimeException('To be implemented.');
+    }
 }
