@@ -8,7 +8,7 @@ Both sites must have same cookie domain.
 
 Drupal > settings.php > Add this line:
 
- $cookie_domain = '.my-domain.com';
+    $cookie_domain = '.my-domain.com';
 
 Moodle > Admin > Server > Session handling > Cookie domain: .my-domain.com
 
@@ -23,10 +23,11 @@ Install: Moodle site
          --branch=moodle-plugin \
          https://github.com/andytruong/moodle-drupalservices.git \
          atdrupal
+
 2. Enable the plugin
 
- - Admin > Notification > Accept detected plugin
- - Admin > Plugin > Auth > Enable atdrupal
+    - Admin > Notification > Accept detected plugin
+    - Admin > Plugin > Auth > Enable atdrupal
 
 ---------------------
 Install: Drupal side
@@ -34,22 +35,22 @@ Install: Drupal side
 Config your Drupal settings.php
 ---------------------
 
- // #1 — Database connection
- $databases['default']['moodle'] = array(
-  'driver' => 'mysql',
-  'database' => 'moodle',
-  'username' => 'moodle',
-  'password' => 'moodle',
-  'host' => 'localhost',
-  'port' => 3306,
-  'prefix' => 'mdl_',
-  'collation' => 'utf8_general_ci',
- );
+    // #1 — Database connection
+    $databases['default']['moodle'] = array(
+     'driver' => 'mysql',
+     'database' => 'moodle',
+     'username' => 'moodle',
+     'password' => 'moodle',
+     'host' => 'localhost',
+     'port' => 3306,
+     'prefix' => 'mdl_',
+     'collation' => 'utf8_general_ci',
+    );
 
- // #2 — Moodle URL
- $conf['moodle_url'] = 'http://www.moodle.mysite.com';
+    // #2 — Moodle URL
+    $conf['moodle_url'] = 'http://www.moodle.mysite.com';
 
- // #3 — Session name (optional)
- // By default, Moodle's session name is MoodleSession, if you have custom
- // configuration of Moodle, change this:
- $conf['moodle_session_name'] = 'MoodleSession';
+    // #3 — Session name (optional)
+    // By default, Moodle's session name is MoodleSession, if you have custom
+    // configuration of Moodle, change this:
+    $conf['moodle_session_name'] = 'MoodleSession';
