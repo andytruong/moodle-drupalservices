@@ -31,7 +31,7 @@ class User {
      */
     public function getMoodleUser($msid) {
         $sql  = "SELECT u.* FROM {user} u";
-        $sql .= " INNER JOIN {sessions} s ON u.id = s.uid";
+        $sql .= " INNER JOIN {sessions} s ON u.id = s.userid";
         $sql .= " WHERE s.sid = :sid AND u.deleted = 0 AND u.suspended = 0";
         $sql .= " LIMIT 1";
 
