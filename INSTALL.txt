@@ -35,7 +35,8 @@ Install: Drupal side
 Config your Drupal settings.php
 ---------------------
 
-    // #1 — Database connection
+1. Database connection
+
     $databases['default']['moodle'] = array(
      'driver' => 'mysql',
      'database' => 'moodle',
@@ -47,10 +48,32 @@ Config your Drupal settings.php
      'collation' => 'utf8_general_ci',
     );
 
-    // #2 — Moodle URL
+2. Moodle URL
+
     $conf['moodle_url'] = 'http://www.moodle.mysite.com';
 
     // #3 — Session name (optional)
     // By default, Moodle's session name is MoodleSession, if you have custom
     // configuration of Moodle, change this:
     $conf['moodle_session_name'] = 'MoodleSession';
+
+3. Fields mapping
+
+    $conf['moodule_user_fields'] = array(
+        'email' => 'mail', // $user->mail
+        'firstname' => 'field_fist_name',
+        'lastname' => 'field_last_name',
+        'language' => 'language',
+        '' => '',
+        '' => '',
+    );
+
+    // If we use address field for user address, we do not need configure for
+    // city/country/…
+    $conf['moodule_user_fields']['address'] = 'field_address';
+
+    // If address is not useded
+    $conf['moodule_user_fields'] += array(
+        'city_town' => 'field_city_town',
+        'country' => 'field_country',
+    );
