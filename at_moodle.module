@@ -40,6 +40,17 @@ function at_moodle_init() {
 }
 
 /**
+ * Implements hook_user_logout()
+ */
+function at_moodle_user_logout() {
+    if ($msname = variable_get('moodle_session_name', 'MoodleSession')
+      && $msid = at_moodle_session_id()
+    ) {
+        AT_Moodle::getServiceUser()->deleteMoodleSession($msname, $msid);
+    }
+}
+
+/**
  * Get Moodle's session ID.
  */
 function at_moodle_session_id() {

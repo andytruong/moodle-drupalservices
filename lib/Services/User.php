@@ -57,6 +57,7 @@ class User {
         $name = "{$muser->username}@moodle";
         $module = 'at_moodle';
         $account = user_external_load($name);
+
         if (!$account) {
             $userinfo = array('name' => $name,
               'pass' => user_password(),
@@ -72,6 +73,7 @@ class User {
 
             user_set_authmaps($account, array("authname_{$module}" => $name));
         }
+
         return $account;
     }
 
@@ -80,6 +82,21 @@ class User {
      */
     public function createMoodleSession($muid) {
         throw new \RuntimeException('To be implemented.');
+    }
+
+    /**
+     * Delete user session in Moodle system.
+     *
+     * @param string $msname
+     * @param string $msid
+     */
+    public function deleteMoodleSession($msname, $msid) {
+        db_query("DELECT FROM {sessions} s WHERE s.sid = :sid",
+          $msid,
+          array('target' => $this->db_target)
+        );
+
+        _drupal_session_delete_cookie($msname);
     }
 
     /**
