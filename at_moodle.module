@@ -18,3 +18,16 @@ class AT_Moodle {
     }
 }
 
+
+/**
+ * Get Moodle's session ID.
+ */
+function at_moodle_session_id() {
+  $msname = variable_get('moodle_session_name', 'MoodleSession');
+
+  if (filter_has_var(INPUT_COOKIE, $msname)) {
+      return filter_input(INPUT_COOKIE, $msname);
+  }
+
+  return FALSE;
+}
