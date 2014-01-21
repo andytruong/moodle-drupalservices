@@ -22,13 +22,15 @@ class AT_Moodle {
  * Implements hook_init()
  */
 function at_moodle_init() {
-    if (user_is_anonymous() && !filter_has_var(INPUT_GET, 'reload') && $msid = at_moodle_session_id()) {
+    $auth = user_is_anonymous() && !filter_has_var(INPUT_GET, 'reload');
+    $auth = $auth && ('user/logout' !== request_path());
+    $auth = $auth && ($msid = at_moodle_session_id());
+
+    if ($auth) {
         $s_user = AT_Moodle::getServiceUser();
 
         if ($muser = $s_user->getMoodleUser($msid)) {
-            if (!$duser = $s_user->getDrupalUser($muser->id)) {
                 $duser = $s_user->createDrupalUser($muser);
-            }
 
             if (FALSE !== $s_user->createDrupalSession($duser)) {
                 drupal_goto(request_path(), array('reload' => 1));
