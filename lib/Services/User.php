@@ -50,9 +50,29 @@ class User {
 
     /**
      * Create Drupal user from Moodle user.
+     *
+     * @see user_external_login_register($name, $module)
      */
     public function createDrupalUser($muser) {
-        throw new \RuntimeException('To be implemented.');
+        $name = "{$muser->username}@moodle";
+        $module = 'at_moodle';
+        $account = user_external_load($name);
+        if (!$account) {
+            $userinfo = array('name' => $name,
+              'pass' => user_password(),
+              'init' => $name,
+              'status' => 1,
+              'access' => REQUEST_TIME,
+            );
+
+            $account = user_save(drupal_anonymous_user(), $userinfo);
+            if (!$account) {
+                throw new \RuntimeException('Can not create account for Moodle user.');
+            }
+
+            user_set_authmaps($account, array("authname_{$module}" => $name));
+        }
+        return $account;
     }
 
     /**
