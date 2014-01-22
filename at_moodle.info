@@ -1,14 +1,24 @@
 name = at_moodle
 core = 7.x
 package = Features
-version = 7.x-1.0-alpha2
+version = 7.x-2.0-alpha1
 project = at_moodle
-
 dependencies[] = at_base
-
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = services_views
+dependencies[] = text
+dependencies[] = views
 ctools[] = services:services:3
 ctools[] = views:views_default:3.0
+features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
+features[field_base][] = field_first_name
+features[field_base][] = field_last_name
+features[field_instance][] = user-user-field_first_name
+features[field_instance][] = user-user-field_last_name
+features[user_role][] = remote-service
+features[views_view][] = moodle_users
 field_base[] = field_first_name
 field_base[] = field_last_name
 field_instance[] = user-user-field_first_name

@@ -1,3 +1,12 @@
 <?php
+/**
+ * @file
+ * at_moodle.features.inc
+ */
 
-// This file is deprecated and can be removed.
+/**
+ * Implements hook_views_api().
+ */
+function at_moodle_views_api($module = NULL, $api = NULL) {
+  return array("api" => "3.0");
+}
