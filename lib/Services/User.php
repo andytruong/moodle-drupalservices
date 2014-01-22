@@ -91,8 +91,8 @@ class User {
      * @param string $msid
      */
     public function deleteMoodleSession($msname, $msid) {
-        db_query("DELECT FROM {sessions} s WHERE s.sid = :sid",
-          $msid,
+        db_query("DELETE FROM {sessions} WHERE sid = :sid",
+          array(':sid' => $msid),
           array('target' => $this->db_target)
         );
 
