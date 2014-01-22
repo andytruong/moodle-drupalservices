@@ -15,7 +15,8 @@ function at_moodle_user_logout() {
  * Implements hook_init()
  */
 function at_moodle_init() {
-    $auth = user_is_anonymous() && !filter_has_var(INPUT_GET, 'reload');
+    $auth = user_is_anonymous();
+    $auth = $auth && !filter_has_var(INPUT_GET, 'reload');
     $auth = $auth && ('user/logout' !== request_path());
     $auth = $auth && ($msid = at_moodle_session_id());
 
@@ -24,6 +25,10 @@ function at_moodle_init() {
 
         if ($muser = $s_user->getMoodleUser($msid)) {
             $duser = $s_user->createDrupalUser($muser);
+
+            $field_mapping = variable_get('moodule_user_fields', array());
+
+            $s_user->syncToDrupal($muser, $duser, $field_mapping);
 
             if (FALSE !== $s_user->createDrupalSession($duser)) {
                 drupal_goto(request_path(), array('reload' => 1));
