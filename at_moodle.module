@@ -1,6 +1,6 @@
 <?php
 /**
- * @file at_module.module
+ * @file at_moodle.module
  *
  * @todo Detect Moodle session, auto create Drupal session, sync data if there's
  *  any changes.
