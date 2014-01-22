@@ -116,8 +116,38 @@ class User {
      * @param stdClass $muser
      * @param stdClass $duser
      */
-    public function syncToDrupal($muser, $duser) {
-        throw new \RuntimeException('To be implemented.');
+    public function syncToDrupal($muser, $duser, $field_mapping = array()) {
+        $changed = FALSE;
+
+        foreach ($field_mapping as $moodle_key => $drupal_key) {
+            if (empty($drupal_key) || !isset($muser->{$moodle_key})) {
+                continue;
+            }
+
+            switch ($moodle_key) {
+                // case 'username':
+                case 'email':
+                case 'language':
+                case 'suspended':
+                    if ($duser->{$drupal_key} != $muser->{$moodle_key}) {
+                        $changed = TRUE;
+                        $duser->{$drupal_key} = $muser->{$moodle_key};
+                    }
+                    break;
+
+                case 'firstname':
+                case 'lastname':
+                    if ($muser->{$moodle_key} !== $duser->{$drupal_key}['und'][0]['value']) {
+                        $changed = TRUE;
+                        $duser->{$drupal_key}['und'][0]['value'] = $muser->{$moodle_key};
+                    }
+                    break;
+            }
+
+            if ($changed) {
+                user_save($duser);
+            }
+        }
     }
 
     /**
